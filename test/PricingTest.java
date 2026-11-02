@@ -17,9 +17,16 @@ public class PricingTest {
         esperar("IVA con centavos: precio 42,50 -> 808 centavos", 808, Pricing.ivaCentavos(4_250));
         esperar("IVA con centavos: precio 49,50 -> 941 centavos", 941, Pricing.ivaCentavos(4_950));
 
-        // D-105: el banner debe estar activo el 27-nov-2026 con la ventana de la campana 2026
+        esperar("IVA de monto cero", 0, Pricing.iva(0));
+        esperar("IVA de COP 100 (19 exactos)", 19, Pricing.iva(100));
+
+        // El banner sigue la ventana que llega por configuracion, incluida la fecha de cierre.
         boolean activo = Pricing.bannerActivo(LocalDate.of(2026, 11, 27), LocalDate.of(2026, 11, 27), LocalDate.of(2026, 11, 30));
         esperar("Banner activo el 27-nov-2026", 1, activo ? 1 : 0);
+        boolean cierre = Pricing.bannerActivo(LocalDate.of(2026, 11, 30), LocalDate.of(2026, 11, 27), LocalDate.of(2026, 11, 30));
+        esperar("Banner activo el ultimo dia de la ventana", 1, cierre ? 1 : 0);
+        boolean antes = Pricing.bannerActivo(LocalDate.of(2026, 11, 26), LocalDate.of(2026, 11, 27), LocalDate.of(2026, 11, 30));
+        esperar("Banner inactivo el dia anterior al inicio", 0, antes ? 1 : 0);
 
         System.out.println(fallos == 0 ? "RESULTADO: PASS" : "RESULTADO: FAIL (" + fallos + " pruebas)");
         System.exit(fallos == 0 ? 0 : 1);
